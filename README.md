@@ -1,6 +1,6 @@
 ---
 title: "Why the new js pipeline operator is a terrible idea"
-date: 2022-04-19T07:37:03Z
+date: 2022-03-31T17:37:03Z
 description: "Functional programming styles have some advantages: predictability and great debugability. Those rely on well-defined patterns that implicitly avoid that you end up shooting yourself in the foot. The newly proposed javascript pipe operator comes without this protection and has a good chance of introducing hard-to-understand code and bad bugs. Here's why."
 categories: ["functional", "f#", "javascript", "pipe"]
 authors: [ "Matthias Kainer", ]
@@ -22,11 +22,27 @@ And all the things, the big and the small, I love in those languages, I miss in 
 
 It seems a few people were coming from f# to javascript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in javascript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
 
-To explain why we will develop a little application that reads the content of a file. Every line in the file represents a specific entry from different sources, with the keys defining the system. We are only interested in the entries from `ELEMENT`. Those entries have the format `ELEMENT[00]=[00]`. The numbers directly after ELEMENT represent the order of the element. The numbers behind the equal sign are a number > 0, illustrating the ceiling-rounded elapsed percentage since the last entry. So, if `ELEMENT01=10` and `ELEMENT02=6`, the total percentage is 16, and the average is 8. As the percentage is ceiling rounded, the total number might go up to over 100%. As the overall system is highly parallel, but for some reason, everybody writes into this one file, it is locked most of the time, and the order of entries is not guaranteed.
+Languages have an inherent design that will shape how the language can evolve without contracting itself. Those traits are defined by how the language manages data and state, how it works with types and the path on which it establishes the absence of things—all of those bring together constraints on how one can implement specific patterns in a language. Or, like here, can't.
+
+This very extension looks like a timely topic that will help create more readable code. And on the first look, this is indeed achieved. Rather than a fragment like this `console.log(format(tokenize(readLines(test_data))));`, which we have to read inside-out to understand what it is we want to console.log, we get a statement that we can read almost like a sentence:
+
+```js
+test_data
+    |> readLines(^)
+    |> tokenize(^)
+    |> format(^)
+    |> console.log(^);
+```
+
+This approach of calling function has not been developed by javascript; many different languages have already used it. However, when you have used and learned it there, some shortcomings will lead to bugs that you wouldn't have in other languages.
+
+Showing this is not easy, so I ask you to bear with me. If you have previous experience with functional programming, the tl;dr is that javascript lacks any functor or monad laws. This was the only time I used those words for those who didn't, so there is no reason to worry if such terms scare you.
+
+First, to explain why we will develop a little application that reads the content of a file. Every line in the file represents a specific entry from different sources, with the keys defining the system. We are only interested in the entries from `ELEMENT`. Those entries have the format `ELEMENT[00]=[00]`. The numbers directly after ELEMENT represent the order of the element. The numbers behind the equal sign are a number > 0, illustrating the ceiling-rounded elapsed percentage since the last entry. So, if `ELEMENT01=10` and `ELEMENT02=6`, the total percentage is 16, and the average is 8. As the percentage is ceiling rounded, the total number might go up to over 100%. As the overall system is highly parallel, but for some reason, everybody writes into this one file, it is locked most of the time, and the order of entries is not guaranteed.
 
 Our first task is to create a friendly process display on the console. It should show the percentage, the message "Started..." until it has reached 25%, the message "Running..." until it's at 75%, and "Almost done..." until it's at 100. Once it has reached 100 or more, we should show "Done" and no percentage. Also, we should make sure it's sorted - based on the last few entries, as a future requirement will be to calculate the time remaining.
 
-If you are already familiar with pipes, binding and higher-order functions, please skip the f# chapter and jump directly to [pipes and javascript](#pipes-and-javascript). If you are aware of the proposal, and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
+If you are already familiar with pipes, binding and higher-order functions, please skip the f# chapter and jump directly to [pipes and javascript](#pipes-and-javascript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
 
 ## Pipes and f#
 
