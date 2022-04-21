@@ -44,6 +44,20 @@ Let's dive into this by developing a little application that reads the content o
 
 Our first task is to create a friendly little process display on the console. It should show the percentage and the message "Started..." until it has reached 25%, then "Running..." until it's at 75%, and after that, "Almost done..." until it's at 100. Once it has reached 100% or more, we want to show the message "Done" and no more percentage. Also, we have to make sure it's sorted based on the last few entries, as a future requirement will be to calculate the time remaining.
 
+```text
+
+ELEMENT01=3  +--------------> 3 -+-> [44%] Running...
+ELEMENT04=4  +--------+ +---> 12-|
+discarded:incorrect +-|-|---> 1 -|
+ELEMENT03=1 +-------+ +-|---> 4 -|
+foo=4             +-----|---> 12-|
+element06=12 +----|-----|---> 12-+
+ELEMENT05=12 +----+     |
+bar=3                   |
+ELEMENT02=12 +----------+
+
+```
+
 If you are already familiar with pipes, binding and higher-order functions, please skip the F# chapter and jump directly to [pipes and JavaScript](#pipes-and-JavaScript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
 
 ## Pipes and F#
