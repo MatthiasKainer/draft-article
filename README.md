@@ -445,7 +445,7 @@ This is different from how we approached it in F#, which has the Option type all
         |> hasValue)
 ```
 
-One may argue that the benefit of this approach is that it allows us to generalize the toUpper/contains functions away from the sequence format. But in this specific case, it makes the code more verbose without improving our sequence. Actually it reduces the quality, as before the `choose`-call gave our compiler a hint that no entry would be optional, whereas this might be the case in the second example. 
+One may argue that the benefit of this approach is that it allows us to generalize the toUpper/contains functions away from the sequence format. But in this specific case, it makes the code more verbose without improving our sequence. Actually, it reduces the quality, as before the `choose`-call gave our compiler a hint that no entry would be optional, whereas this might be the case in the second example. 
 
 Having a good understanding of the choices of `Some` versus `None` will help us later, though, and is necessary to keep in mind.
 
