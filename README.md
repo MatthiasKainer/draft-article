@@ -1,9 +1,10 @@
 ---
 title: "Why the new js pipeline operator is a terrible idea"
 date: 2022-03-31T17:37:03Z
-description: "Functional programming styles have some advantages: predictability and great debugability. Those rely on well-defined patterns that implicitly avoid that you end up shooting yourself in the foot. The newly proposed javascript pipe operator comes without this protection and has a good chance of introducing hard-to-understand code and bad bugs. Here's why."
-categories: ["functional", "f#", "javascript", "pipe"]
+description: "Functional programming styles have some advantages, like predictability and great debugability. Those rely on well-defined patterns that implicitly avoid that you end up shooting yourself in the foot. The newly proposed JavaScript pipe operator comes without this protection and has a good chance of introducing hard-to-understand code and bad bugs. Here's why."
+categories: ["functional", "f#", "JavaScript", "pipe"]
 authors: [ "Matthias Kainer", ]
+contributors: [ "Milena Neumann", "Ferdinand Beyer" ]
 toc: true
 dropCap: true
 displayInMenu: false
@@ -20,11 +21,11 @@ The world of software development evolves at a ludicrous speed. Things considere
 
 And all the things, the big and the small, I love in those languages, I miss in others. When I switch from Rust to another, I miss results and matches. When I switch from Python to another language, I search for their equivalent of NumPy and panda. When I switch from f#, I search for a way to pipe and bind my data.
 
-It seems a few people were coming from f# to javascript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in javascript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
+It seems a few people were coming from f# to JavaScript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in JavaScript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
 
-Languages have an inherent design that will shape how it can evolve without contradicting itself. Those traits are defined by how the language manages data and state, how it works with types, and the path on which it establishes the absence of things—all of those aspects form constraints on how one can implement specific patterns in a language. Or, like here, can't.
+Languages have an inherent design that will shape how they can evolve without contradicting themselves. Those traits are defined by how the language manages data and state, how it works with types, and the path on which it establishes the absence of things—all of those aspects form constraints on how one can implement specific patterns in a language. Or, like here, can't.
 
-The pipeline operator for JavaScript looks like a timely topic that will help create more readable code. And on the first look, this is indeed achieved. Rather than a fragment like this `console.log(format(tokenize(readLines(test_data))));`, which we have to read inside-out to understand what it is we want to console.log, we get a statement that we can read almost like a sentence:
+The pipeline operator for JavaScript looks like a topic that will help create more readable code. And on the first look, this is indeed achieved. Rather than a fragment like this `console.log(format(tokenize(readLines(test_data))));`, which we have to read inside-out to understand what it is we want to console.log, we get a statement that we can read almost like a sentence:
 
 ```js
 test_data
@@ -34,15 +35,15 @@ test_data
     |> console.log(^);
 ```
 
-This approach of calling functions has not been invented by javascript; many different languages have already used it. However, when you have learned and used this pattern in another language before, some shortcomings of the JavaScript adaptation will lead to bugs that wouldn't occur in other languages.
+However, JavaScript is not a language designed with functional composition in mind. In the past, the language has prefered an approach of `list.map(fn).filter(fn).reduce(fn)`, which ensures having an instance that provides the given operations. Turning this around into a functional way, into `reduce(filter(map(list, fn), fn), fn)`, will require the functions to take care of any invalid state of the passed instance - something JavaScript is not great at. However, adding syntactic sugar to make free functions easier encourages developers to take that route. And it will augment the shortcomings of the language in that area while hiding the reason for it behind syntactic sugar, making it even harder to debug.
 
-Demonstrating this is not easy, so I ask you to bear with me. If you have previous experience with functional programming, the tl;dr is that javascript lacks any functor or monad laws. For those who don't know functional programming and/or are intimidated by such terms, this was the only time I will use those words, so rest assured!
+Demonstrating the problems introduced by such a shift is not easy, so I ask you to bear with me. If you have previous experience with functional programming, the tl;dr is that JavaScript lacks any functor or monad laws. For those who don't know functional programming and/or are intimidated by such terms, this was the only time I will use those words, so rest assured!
 
 Let's dive into this by developing a little application that reads the content of a file. Every line of the file represents a specific entry from different sources, with the keys defining the system. We are only interested in the entries from `ELEMENT`. Those entries have the format `ELEMENT[00]=[00]`. The digits directly after ELEMENT determine the order of elements. After the equals sign is a number > 0, representing the elapsed percentage since the last entry, rounded-up. So, if `ELEMENT01=10` and `ELEMENT02=6`, the total percentage is 16, and the average is 8. As each entry is rounded up, the total sum might go up to over 100%. The overall system is highly parallel, but for some reason everybody writes into this one file, so it is locked most of the time and the order of entries is not guaranteed.
 
 Our first task is to create a friendly little process display on the console. It should show the percentage and the message "Started..." until it has reached 25%, then "Running..." until it's at 75%, and after that, "Almost done..." until it's at 100. Once it has reached 100% or more, we want to show the message "Done" and no more percentage. Also, we have to make sure it's sorted based on the last few entries, as a future requirement will be to calculate the time remaining.
 
-If you are already familiar with pipes, binding and higher-order functions, please skip the f# chapter and jump directly to [pipes and javascript](#pipes-and-javascript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
+If you are already familiar with pipes, binding and higher-order functions, please skip the f# chapter and jump directly to [pipes and JavaScript](#pipes-and-JavaScript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
 
 ## Pipes and f#
 
@@ -191,7 +192,7 @@ let tokenize(line: string) =
 
 As we added the new `>>=` operator, we no longer have to write `Option.bind`. Coincidentally, the implementation of `>>=` is almost the same as for `|>` - the only change is that it calls `Option.bind` before calling the passed function.
 
-We haven't talked about the javascript implementation of the pipe at this point, and we won't for some time. But do note that the pipe in f# is merely a starting point for us on our quest to compose functions. It's not just syntactic sugar to avoid reading inside out; it stands on the shoulder of the giant that implicitly and nicely asks us to think in functions and dive into them as they are popping up. And naturally, by the laws and the ecosystem around us, we are pushed into a direction that will prevent us from making mistakes later. 
+We haven't talked about the JavaScript implementation of the pipe at this point, and we won't for some time. But do note that the pipe in f# is merely a starting point for us on our quest to compose functions. It's not just syntactic sugar to avoid reading inside out; it stands on the shoulder of the giant that implicitly and nicely asks us to think in functions and dive into them as they are popping up. And naturally, by the laws and the ecosystem around us, we are pushed into a direction that will prevent us from making mistakes later. 
 
 You will soon see what I mean, so let's continue our example by filtering the None's out. We can do this using the built-in function `Seq.choose`, which returns the list comprised of the results "x" for each element where the function returns `Some(x)`. `Seq.choose` can also be viewed as the implementation of `bind` for sequences, and it follows the same rules, making it very predictable for us.
 
@@ -336,9 +337,9 @@ test_data
     >>= print
 ```
 
-How will that look in javascript soon, and what does it imply?
+How will that look in JavaScript soon, and what does it imply?
 
-## Pipes and javascript
+## Pipes and JavaScript
 
 We cannot use Pipes out of the box just yet, as they are only a proposal. For trying them out, we can use a babel plugin. We have to configure it like this to work correctly:
 
@@ -439,7 +440,7 @@ One may argue that the benefit of this approach is that it allows us to generali
 
 Having a good understanding of the choices of Some versus None will help us later, though, and is necessary to keep in mind.
 
-In our javascript example, the code insofar will return:
+In our JavaScript example, the code insofar will return:
 
 ```sh
 [
@@ -467,7 +468,7 @@ _ref2 = tokenize(readLines(test_data)), console.log(_ref2);
 
 It tells us two things. First, the tokenize function is more concise without using pipes; the other is that our pipeline itself did become more readable. Rather than the inside-out function in the function call, the pipeline helps us (like with f#) to follow the trail rather than the inside-out function in the function call.
 
-The tokenize function shows us how we probably would have created this in javascript - by chaining the functions on their instance.
+The tokenize function shows us how we probably would have created this in JavaScript - by chaining the functions on their instance.
 
 Let's continue with implementing the capitalization and filtering. 
 
@@ -630,9 +631,9 @@ No value available
 
 More importantly, though, when wrapped in a bind, our function will only be called given a valid, existing value. We can trust our computational flow to handle the data; thus, we can focus on the logic.
 
-And this is where things start to fall apart in javascript.
+And this is where things start to fall apart in JavaScript.
 
-Remember our previous example in javascript, and change the code as we did in f#.
+Remember our previous example in JavaScript, and change the code as we did in f#.
 
 ```js
 let test_data = `
@@ -662,13 +663,13 @@ When we execute this, the result will be:
 Done
 ```
 
-We receive this output because our computational flow is broken starting from the `reduce` statement. In the `sumValues` function, `element06` will become `NaN`, and all sums after that, too. In our format function, as we didn't account for `NaN`, we return the result of the `else` statement, and the `console.log` has no way to decide if the result is valid and just prints it.
+We receive this output because our computational flow is broken starting from the `reduce` statement. In the `sumValues` function, `element06` will become `NaN`, and all sums after that, too. In our format function, as we didn't account for `NaN`, we return the result of the `else` statement, and the `console.log` has no way to decide if the result is valid and just prints it. If we compare this to a [Railway Oriented Programming](https://fsharpforfunandprofit.com/posts/recipe-part2/) Pattern, then the JavaScript example would be a runaway train staying on the wrong track, without an option to trace back which turnout was missed.
 
 Let's look at the main differences:
 
-- In f#, once we encounter our first `None`, the `add` is no longer called, as `bind` prevents that. This is the great advantage of optional types that we have seen in the second chapter. In javascript, after the current value is `NaN`, addition continues for the other numbers, propagating the `NaN`. 
-- In f#, the format function is only called for valid results from the sum, as we added the binding. In javascript, the format function is called indiscriminately.
-- For the final print f#, we can either use the binding again or branch it - based on the outcome. Unfortunately, the javascript code is entirely unable to decide the result at that point.
+- In f#, once we encounter our first `None`, the `add` is no longer called, as `bind` prevents that. This is the great advantage of optional types that we have seen in the second chapter. In JavaScript, after the current value is `NaN`, addition continues for the other numbers, propagating the `NaN`. 
+- In f#, the format function is only called for valid results from the sum, as we added the binding. In JavaScript, the format function is called indiscriminately.
+- For the final print f#, we can either use the binding again or branch it - based on the outcome. Unfortunately, the JavaScript code is entirely unable to decide the result at that point.
 
 To achieve effective pipelines in JavaScript, we will first have to introduce optional types and binding. Without it, we cannot create the laws required to prove that our flow will succeed or fail. And thus, like in our example, it will fail in a way that will be very hard to trace, debug and understand in a more complex application - leading to the exact opposite of what functional paradigms usually provide.
 
@@ -676,4 +677,4 @@ Introducing the pipeline operator that people appreciate in other languages as a
 
 Suppose you want to add some foreign paradigms to the language. In that case, you can always create extensions in your codebase, as I have done [in the past](https://matthias-kainer.de/blog/posts/why-some-people-prefer-functional-and-others-object-oriented-beginners-guide/#composition-in-the-fp-world). But I would never release them as a framework as long as they don't fully implement the expected constraints, less so propose them as a new language feature.
 
-If you want to use paradigms foreign to the language, think about other ways of getting there while still adhering to the fundamental rules of the language; when longing for functional, for instance, use closure script or elm. Same as you would choose TypeScript if you lack OOP features in Javascript.
+If you want to use paradigms foreign to the language, think about other ways of getting there while still adhering to the fundamental rules of the language; when longing for functional, for instance, use closure script or elm. Same as you would choose TypeScript if you lack OOP features in JavaScript.
