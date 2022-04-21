@@ -4,7 +4,7 @@ date: 2022-03-31T17:37:03Z
 description: "Functional programming styles have some advantages, like predictability and great debugability. Those rely on well-defined patterns that implicitly avoid that you end up shooting yourself in the foot. The newly proposed JavaScript pipe operator comes without this protection and has a good chance of introducing hard-to-understand code and bad bugs. Here's why."
 categories: ["functional", "F#", "JavaScript", "pipe"]
 authors: [ "Matthias Kainer", ]
-contributors: [ "Milena Neumann", "Ferdinand Beyer" ]
+contributors: [ "Milena Neumann", "Ferdinand Beyer", "Calvin Bayer" ]
 toc: true
 dropCap: true
 displayInMenu: false
