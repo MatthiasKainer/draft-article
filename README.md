@@ -22,7 +22,7 @@ And all the things, the big and the small, I love in those languages, I miss in 
 
 It seems a few people were coming from f# to javascript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in javascript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
 
-Languages have an inherent design that will shape how the language can evolve without contracting itself. Those traits are defined by how the language manages data and state, how it works with types and the path on which it establishes the absence of things—all of those bring together constraints on how one can implement specific patterns in a language. Or, like here, can't.
+Languages have an inherent design that will shape how it can evolve without contradicting itself. Those traits are defined by how the language manages data and state, how it works with types, and the path on which it establishes the absence of things—all of those aspects form constraints on how one can implement specific patterns in a language. Or, like here, can't.
 
 This very extension looks like a timely topic that will help create more readable code. And on the first look, this is indeed achieved. Rather than a fragment like this `console.log(format(tokenize(readLines(test_data))));`, which we have to read inside-out to understand what it is we want to console.log, we get a statement that we can read almost like a sentence:
 
