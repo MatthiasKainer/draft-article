@@ -134,7 +134,7 @@ test_data
 seq [None; Some [|"ELEMENT01"; "3"|]; Some [|"ELEMENT04"; "4"|]; None; ...]
 ```
 
-As you can see, both the empty element at the beginning and the incorrect element at index 3 are None. 
+As you can see, both the empty element at the beginning and the incorrect element at index 3 are `None`. 
 
 I want to add one thing in code here even though it is technically not needed - tokenize currently returns our tokens as an array. I prefer to work with tuples in F#, because it comes with a few benefits (remember the `||>` from above), so we will convert it. We can easily do this with the line `fun line -> Some(line[0], line[1])`, but we can't just pipe it in this case. If we write
 
@@ -150,7 +150,7 @@ the compiler will complain about
 The type 'Option<_>' does not define the field, constructor or member 'Item'.
 ```
 
-The compiler is trying to tell us that line is not an array but an Option. Remember the Maybe that holds some or none value returned by the split function. To get rid of the compiler error, we would have to add `.Value` on the line to access the content of the Maybe:
+The compiler is trying to tell us that line is not an array but an Option. Remember the `Maybe` that holds some or no value returned by the split function. To get rid of the compiler error, we would have to add `.Value` on the line to access the content of the `Maybe`:
 
 ```fsharp
 let tokenize(line: string) =
@@ -159,9 +159,18 @@ let tokenize(line: string) =
     |> fun line -> Some(line.Value[0], line.Value[1])
 ```
 
-This, however, will fail during runtime as the line might be None and thus not have a Value. To make sure we are doing this right, we must bind the value first. Binding in that context means checking it and only executing it when it is some.
+This, however, will fail during runtime as the line might be `None` and thus not have a value. To make sure we are doing this right, we must `Bind` the value first. `Bind` is a wrapper, that can be defined as the following:
 
-We can add this function before the `fun` so that the result will look like this:
+```fsharp
+let Bind function optional =
+    match optional with
+    | None ->
+        None
+    | Some value ->
+        value |> f
+```
+
+If the `Maybe` is `None`, it short circuits by returning `None`, and only if it has a value it will pass it to the function. Adding this to our code will look like this:
 
 ```fsharp
 let tokenize(line: string) =
@@ -194,7 +203,7 @@ As we added the new `>>=` operator, we no longer have to write `Option.bind`. Co
 
 We haven't talked about the JavaScript implementation of the pipe at this point, and we won't for some time. But do note that the pipe in F# is merely a starting point for us on our quest to compose functions. It's not just syntactic sugar to avoid reading inside out; it stands on the shoulder of the giant that implicitly and nicely asks us to think in functions and dive into them as they are popping up. And naturally, by the laws and the ecosystem around us, we are pushed into a direction that will prevent us from making mistakes later. 
 
-You will soon see what I mean, so let's continue our example by filtering the None's out. We can do this using the built-in function `Seq.choose`, which returns the list comprised of the results "x" for each element where the function returns `Some(x)`. `Seq.choose` can also be viewed as the implementation of `bind` for sequences, and it follows the same rules, making it very predictable for us.
+You will soon see what I mean, so let's continue our example by filtering the `None`'s out. We can do this using the built-in function `Seq.choose`, which returns the list comprised of the results "x" for each element where the function returns `Some(x)`. `Seq.choose` can also be viewed as the implementation of `bind` for sequences, and it follows the same rules, making it very predictable for us.
 
 ```fsharp
 let each(e) = e
@@ -438,7 +447,7 @@ This is different from how we approached it in F#, which has the Option type all
 
 One may argue that the benefit of this approach is that it allows us to generalize the toUpper/contains functions away from the sequence format. But in this specific case, it makes the code more verbose without improving our sequence. Actually it reduces the quality, as before the `choose`-call gave our compiler a hint that no entry would be optional, whereas this might be the case in the second example. 
 
-Having a good understanding of the choices of Some versus None will help us later, though, and is necessary to keep in mind.
+Having a good understanding of the choices of `Some` versus `None` will help us later, though, and is necessary to keep in mind.
 
 In our JavaScript example, the code insofar will return:
 
