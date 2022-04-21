@@ -28,6 +28,7 @@ Languages have an inherent design that will shape how they can evolve without co
 The pipeline operator for JavaScript looks like a topic that will help create more readable code. And on the first look, this is indeed achieved. Rather than a fragment like this `console.log(format(tokenize(readLines(test_data))));`, which we have to read inside-out to understand what it is we want to console.log, we get a statement that we can read almost like a sentence:
 
 ```js
+// js
 test_data
     |> readLines(^)
     |> tokenize(^)
@@ -80,6 +81,7 @@ This is nothing you have to think about; the language does it automatically. In 
 Let's see how we can use that. We start with some test data and read it line by line:
 
 ```fsharp
+// fsharp
 let test_data = "
 ELEMENT01=3
 ELEMENT04=4
@@ -112,6 +114,7 @@ Now, the line `test_data |> readLines |> printfn "%A"` is equivalent to `printfn
 We are far from done, though. Our next task is to tokenize each line. And we will have to handle an exceptional condition already - the tokenization may fail. There is already an example of an invalid token in the test string, `discarded:incorrect`. We will address this by creating a split function that returns a `Maybe`. A maybe contains some value or none; we can resolve it later on and then only continue with those that have some. 
 
 ```fsharp
+// fsharp
 
 let split(split: char)(element: string) =
     if (element.Contains(split))
@@ -139,6 +142,7 @@ As you can see, both the empty element at the beginning and the incorrect elemen
 I want to add one thing in code here even though it is technically not needed - tokenize currently returns our tokens as an array. I prefer to work with tuples in F#, because it comes with a few benefits (remember the `||>` from above), so we will convert it. We can easily do this with the line `fun line -> Some(line[0], line[1])`, but we can't just pipe it in this case. If we write
 
 ```fsharp
+// fsharp
 let tokenize(line: string) =
     line
     |> split '='
@@ -153,6 +157,7 @@ The type 'Option<_>' does not define the field, constructor or member 'Item'.
 The compiler is trying to tell us that line is not an array but an Option. Remember the `Maybe` that holds some or no value returned by the split function. To get rid of the compiler error, we would have to add `.Value` on the line to access the content of the `Maybe`:
 
 ```fsharp
+// fsharp
 let tokenize(line: string) =
     line
     |> split '='
@@ -173,6 +178,7 @@ let Bind function optional =
 If the `Maybe` is `None`, it short circuits by returning `None`, and only if it has a value it will pass it to the function. Adding this to our code will look like this:
 
 ```fsharp
+// fsharp
 let tokenize(line: string) =
     line
     |> split '='
@@ -191,6 +197,7 @@ As you can see, the elements have changed from `[|" ELEMENT01"; "3" |]` to `("EL
 We will need the binding more often, so let's add an infix operator that does the binding for us in the future. The code becomes
 
 ```fsharp
+// fsharp
 let (>>=) m f = Option.bind f m
 
 let tokenize(line: string) =
@@ -206,6 +213,7 @@ We haven't talked about the JavaScript implementation of the pipe at this point,
 You will soon see what I mean, so let's continue our example by filtering the `None`'s out. We can do this using the built-in function `Seq.choose`, which returns the list comprised of the results "x" for each element where the function returns `Some(x)`. `Seq.choose` can also be viewed as the implementation of `bind` for sequences, and it follows the same rules, making it very predictable for us.
 
 ```fsharp
+// fsharp
 let each(e) = e
 
 test_data
@@ -224,6 +232,7 @@ seq
 Next, we remove all elements we are not interested in and only keep the `ELEMENT`s. Unfortunately, our test data shows that `element06` is lowercase, which implies we don't have a guarantee for the casing, so we have to consider that, too. In F#, this means two more functions: one to capitalize the key of the array and another one to check the key for a match:
 
 ```fsharp
+// fsharp
 let keyContains(subString: string) ((key,_): string * string) =
     key.Contains(subString.ToUpper())
 
@@ -251,6 +260,7 @@ seq
 It worked. `element06` is still lowercase, as we capitalized it only in the filter method. But luckily, our functions are so generic that we can move them around quickly to change the workflow. So if you prefer the result consistently in uppercase, you can change the pipeline to:
 
 ```fsharp
+// fsharp
 test_data
     |> readLines
     |> Seq.map tokenize
@@ -272,6 +282,7 @@ It's all just generic functions. You are the maestro putting them in the positio
 I'll speed up now, as the remainder is pretty straightforward. We sort, convert the value to an integer, and create the sum:
 
 ```fsharp
+// fsharp
 let (>>>=) (m, n) f = Option.bind (fun v -> Option.bind (f v) m) n
 
 let toInt(value: string) =
@@ -306,6 +317,7 @@ Some 44
 Now all that's missing is formatting the result. We are receiving an Option-Maybe, so let's create a function that supports binding, and make sure this function will get a value with our custom operator:
 
 ```fsharp
+// fsharp
 let (|LessThan|_|) comp value = if value < comp then Some() else None
 
 let format(a: int) =
@@ -340,6 +352,7 @@ test_data
 Works! The pipeline, the core of our application, has gotten quite long. But given it's all just functions, you can easily create higher-order functions that combine some of them and reduce the size of the pipeline to something like
 
 ```fsharp
+// fsharp
 test_data
     |> extract
     |> transform
@@ -353,6 +366,7 @@ How will that look in JavaScript soon, and what does it imply?
 We cannot use Pipes out of the box just yet, as they are only a proposal. For trying them out, we can use a babel plugin. We have to configure it like this to work correctly:
 
 ```js
+// js
 const plugins = [
   [
     "@babel/plugin-proposal-pipeline-operator", {
@@ -368,6 +382,7 @@ There are two options - the topic token we will talk about when we start with th
 We begin again with our 
 
 ```js
+// js
 const test_data = `
 ELEMENT01=3
 ELEMENT04=4
@@ -411,6 +426,7 @@ Running this code (after Babel transforms it) will output the following result:
 Similar to F#, we got off with a good start. So, let's continue by tokenizing it. However, unlike in F#, we don't have Maybe or Option types at our disposal, so we are going to approach the error handling slightly different by filtering the elements that don't have an `=` first, and then splitting them: 
 
 ```js
+// js
 const tokenize = (v) =>
     v
     |> ^.filter(v => v.includes("="))
@@ -426,6 +442,7 @@ test_data
 This is different from how we approached it in F#, which has the Option type allowing us to map and decide in one go. However, it's not too much of a change either, so we might be inclined to ignore it. Nevertheless, it is crucial to highlight a fundamental difference between the two approaches: In F#, we have a construct that allows us to specify the existence of a value and then bind the values to evaluate if we want to compute them. We consciously decided with the `Seq.choose` statement that we wanted to bind them right away. As an alternative, we could have also written:
 
 ```fsharp
+// fsharp
     // before
     v
     |> readLines
@@ -468,6 +485,7 @@ This is a good moment to look at the generated code from babel. If we open the y
 
 
 ```js
+// js
 const readLines = v => v.split("\n");
 
 const tokenize = v => v.filter(v => v.indexOf("=") > -1).map(v => v.split("="));
@@ -482,6 +500,7 @@ The tokenize function shows us how we probably would have created this in JavaSc
 Let's continue with implementing the capitalization and filtering. 
 
 ```js
+// js
 
 const keyContains = (subString, [key]) => key.indexOf(subString.toUpperCase()) !== -1
 const keyToUpper = ([key, value]) => [key.toUpperCase(), value]
@@ -498,6 +517,7 @@ We create an arrow function to combine the two methods and use the variable as a
 When we run this, the result is
 
 ```js
+// js
 [
   [ 'ELEMENT01', '3' ],
   [ 'ELEMENT04', '4' ],
@@ -533,6 +553,7 @@ test_data
 The formatting can then be done in an if-else statement:
 
 ```js
+// js
 const format = (value) => {
     if (value < 25) { return `[${value}%] Started... ` }
     else if (value < 75) { return `[${value}%] Running... ` }
@@ -561,6 +582,7 @@ Solution achieved.
 It is not too different from the F# solution, so why complain? It is very similar, but it behaves very differently in some cases. To show how let's fiddle with the input a bit.
 
 ```fsharp
+// fsharp
 let test_data = "
 ELEMENT01=3
 ELEMENT04=4
@@ -585,6 +607,7 @@ Notice how our lowercase `element06` has received an invalid integer now. So wha
 Nothing. There is simply no output. What may appear weird at first makes a lot of sense when we dig deeper. Let's take a look at our pipeline:
 
 ```fsharp
+// fsharp
 success_vars
     |> readLines
     |> Seq.map tokenize
@@ -599,20 +622,12 @@ success_vars
 
 As you might remember, the `>>=` is a bind operation. Bind can be seen as a wrapper function that calls the function if the argument has a value or doesn't if the value is none.
 
-In code, it looks like this:
-
-```fsharp 
-let bind f optional =
-    match optional with
-    | Some x -> f x
-    | _ -> None
-```
-
 There are additional implementations in F#, for instance, the `choose` function on sequences we have already used. Thus, this behaviour can be assumed as law in every functional realm. Knowing this law and combining it with other elements like lazy evaluations and constructs like `map` or `either` will enable you to write complex computational flows that can be mixed and sequenced freely and predictable.
 
 For instance, if we are interested in the fact that we ended up with `None` in our composition, we can change the code like so:
 
 ```fsharp
+// fsharp
 let printValue (value: string option) =
     match value with
         | Some v -> v |> printfn "%s"
@@ -645,6 +660,7 @@ And this is where things start to fall apart in JavaScript.
 Remember our previous example in JavaScript, and change the code as we did in F#.
 
 ```js
+// js
 let test_data = `
 ELEMENT01=3
 ELEMENT04=4
