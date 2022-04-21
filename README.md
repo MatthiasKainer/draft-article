@@ -150,7 +150,7 @@ the compiler will complain about
 The type 'Option<_>' does not define the field, constructor or member 'Item'.
 ```
 
-The compiler is trying to tell us that line is not an array but an Option. Remember the Some/None Maybe that the split function returns. To get rid of the compiler error, we would have to add `.Value` on the line to access the content of the Maybe:
+The compiler is trying to tell us that line is not an array but an Option. Remember the Maybe that holds some or none value returned by the split function. To get rid of the compiler error, we would have to add `.Value` on the line to access the content of the Maybe:
 
 ```fsharp
 let tokenize(line: string) =
