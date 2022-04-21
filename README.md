@@ -287,7 +287,7 @@ test_data
     |> printfn "%A"
 ```
 
-In the `toInt` function, we create our Option-Maybes again as we can't be sure those are all valid numbers, and for the sum, we extend our binding, allowing us to pass a tuple. This will enable us to use this with the fold function. Running it gives us:
+In the `toInt` function, we create our Option-Maybes again as we can't be sure those are all valid numbers, and for the sum, we extend our binding, allowing us to pass a tuple. This will enable us to use this with the `fold` function. Running it gives us:
 
 ```bash
 ❯ dotnet fsi pipes.fsx
@@ -328,7 +328,7 @@ test_data
 [44%] Running...
 ```
 
-Works! The pipeline, the core of our application, has gotten quite long. But given it's all just functions, you can create easily add higher-order functions that combine some of them and reduce the size of the pipeline to something like
+Works! The pipeline, the core of our application, has gotten quite long. But given it's all just functions, you can easily create higher-order functions that combine some of them and reduce the size of the pipeline to something like
 
 ```fsharp
 test_data
@@ -354,12 +354,12 @@ const plugins = [
 ]
 ```
 
-There are two options - the topic token we will talk about when we start with the code, and the other specifies the proposal that people handed in. There were four of them; you can read about the history [here](https://github.com/tc39/proposal-pipeline-operator/#why-the-hack-pipe-operator) - hack won, so this is what we are going to use.
+There are two options - the topic token we will talk about when we start with the code, and the other specifies the proposal that people handed in. There were four of them; you can read about the history [here](https://github.com/tc39/proposal-pipeline-operator/#why-the-hack-pipe-operator) - `hack` won, so this is what we are going to use.
 
 We begin again with our 
 
 ```js
-let test_data = `
+const test_data = `
 ELEMENT01=3
 ELEMENT04=4
 discarded:incorrect
@@ -381,7 +381,7 @@ test_data
 
 As we can see, the syntax is similar. Probably the most substantial difference is the `^` character. From a programming paradigm style, this changes the implementation from a [tacit](https://en.wikipedia.org/wiki/Tacit_programming) to a more explicit one. The character is the token we defined in the babel plugin; in other examples, you may see other characters being used. To my information, there is no decision yet on which character will be the default token.
 
-Running this code (after babel transforms it) will output the following result:
+Running this code (after Babel transforms it) will output the following result:
 
 ```sh
 [
@@ -404,7 +404,7 @@ Similar to F#, we got off with a good start. So, let's continue by tokenizing it
 ```js
 const tokenize = (v) =>
     v
-    |> ^.filter(v => v.indexOf("=") > -1)
+    |> ^.filter(v => v.includes("="))
     |> ^.map(v => v.split("="))
 
 
@@ -474,8 +474,8 @@ Let's continue with implementing the capitalization and filtering.
 
 ```js
 
-const keyContains = ((by, [key]) => key.indexOf(by.toUpperCase()) !== -1)
-const keyToUpper = (([key, value]) => [key.toUpperCase(), value])
+const keyContains = (by, [key]) => key.indexOf(by.toUpperCase()) !== -1
+const keyToUpper = ([key, value]) => [key.toUpperCase(), value]
 
 test_data
     |> readLines(^)
@@ -629,7 +629,7 @@ No value available
 ❯ 
 ```
 
-More importantly, though, when wrapped in a bind, our function will only be called given a valid, existing value. We can trust our computational flow to handle the data; thus, we can focus on the logic.
+More importantly, though, when wrapped in a `bind`, our function will only be called given a valid, existing value. We can trust our computational flow to handle the data; thus, we can focus on the logic.
 
 And this is where things start to fall apart in JavaScript.
 
