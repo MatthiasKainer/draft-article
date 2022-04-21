@@ -224,8 +224,8 @@ seq
 Next, we remove all elements we are not interested in and only keep the `ELEMENT`s. Unfortunately, our test data shows that `element06` is lowercase, which implies we don't have a guarantee for the casing, so we have to consider that, too. In F#, this means two more functions: one to capitalize the key of the array and another one to check the key for a match:
 
 ```fsharp
-let keyContains(by: string) ((key,_): string * string) =
-    key.Contains(by.ToUpper())
+let keyContains(subString: string) ((key,_): string * string) =
+    key.Contains(subString.ToUpper())
 
 let keyToUpper((key, value): string * string) =
     (key.ToUpper(), value)
@@ -239,7 +239,7 @@ test_data
 
 ```
 
-As you can see, the `keyContains` function is curried by us, which makes it more explicit how this works - the thing piped in is the last argument, and the `by` before that. There is another thing that you haven't seen, `>>`. This operator allows us to create higher-order functions on the spot. So `Seq.filter` calls a function that calls `keyToUpper` first, and then `keyContains`. Let's run the code and see if it works.
+As you can see, the `keyContains` function is curried by us, which makes it more explicit how this works - the thing piped in is the last argument, and the `subString` before that. There is another thing that you haven't seen, `>>`. This operator allows us to create higher-order functions on the spot. So `Seq.filter` calls a function that calls `keyToUpper` first, and then `keyContains`. Let's run the code and see if it works.
 
 ```bash
 ❯ dotnet fsi pipes.fsx
@@ -483,7 +483,7 @@ Let's continue with implementing the capitalization and filtering.
 
 ```js
 
-const keyContains = (by, [key]) => key.indexOf(by.toUpperCase()) !== -1
+const keyContains = (subString, [key]) => key.indexOf(subString.toUpperCase()) !== -1
 const keyToUpper = ([key, value]) => [key.toUpperCase(), value]
 
 test_data
