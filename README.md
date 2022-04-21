@@ -181,7 +181,7 @@ let tokenize(line: string) =
 
 Rerunning the code will lead to the following output:
 
-```sh
+```bash
 ❯ dotnet fsi pipes.fsx
 seq [None; Some ("ELEMENT01", "3"); Some ("ELEMENT04", "4"); None; ...]
 ```
@@ -260,7 +260,7 @@ test_data
     |> printfn "%A"
 ```
 
-```sh
+```bash
 ❯ dotnet fsi pipes.fsx
 seq
   [("ELEMENT01", "3"); ("ELEMENT04", "4"); ("ELEMENT03", "1");
@@ -392,7 +392,7 @@ As we can see, the syntax is similar. Probably the most substantial difference i
 
 Running this code (after Babel transforms it) will output the following result:
 
-```sh
+```bash
 [
   '',
   'ELEMENT01=3',
@@ -451,7 +451,7 @@ Having a good understanding of the choices of `Some` versus `None` will help us 
 
 In our JavaScript example, the code insofar will return:
 
-```sh
+```bash
 [
   [ 'ELEMENT01', '3' ],
   [ 'ELEMENT04', '4' ],
@@ -550,7 +550,7 @@ test_data
     |> console.log(^)
 ```
 
-```sh
+```bash
 [44%] Running... 
 ```
 
@@ -576,7 +576,7 @@ ELEMENT02=12
 
 Notice how our lowercase `element06` has received an invalid integer now. So what will happen if we run this?
 
-```sh
+```bash
 ❯ dotnet fsi pipes.fsx
 
 ❯ 
@@ -632,7 +632,7 @@ success_vars
 
 The result is now evaluated as:
 
-```sh
+```bash
 ❯ dotnet fsi pipes.fsx
 No value available
 ❯ 
@@ -668,7 +668,7 @@ test_data
 
 When we execute this, the result will be:
 
-```sh
+```bash
 Done
 ```
 
