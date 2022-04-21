@@ -2,7 +2,7 @@
 title: "Why the new js pipeline operator is a terrible idea"
 date: 2022-03-31T17:37:03Z
 description: "Functional programming styles have some advantages, like predictability and great debugability. Those rely on well-defined patterns that implicitly avoid that you end up shooting yourself in the foot. The newly proposed JavaScript pipe operator comes without this protection and has a good chance of introducing hard-to-understand code and bad bugs. Here's why."
-categories: ["functional", "f#", "JavaScript", "pipe"]
+categories: ["functional", "F#", "JavaScript", "pipe"]
 authors: [ "Matthias Kainer", ]
 contributors: [ "Milena Neumann", "Ferdinand Beyer" ]
 toc: true
@@ -17,11 +17,11 @@ resources:
     description: "A code example of the js pipe operator from the article"
 ---
 
-The world of software development evolves at a ludicrous speed. Things considered state of the art 20 years ago, when I started coding, are now considered legacy and bad practice. It's as if doctors would have gone from leeches to gene splicing in half a dozen years. Luckily, I enjoy learning. And I appreciate every new idea and pattern that I get to know with every new language I encounter. The borrow checker and the high level features at high performance from Rust. The easiness of bringing your thoughts about data into code from Python. And the convenience of composing functions with f#, which always makes me feel as if I'm the maestro of the code, timing the different parts of the orchestra ideally to create the most beautiful song. 
+The world of software development evolves at a ludicrous speed. Things considered state of the art 20 years ago, when I started coding, are now considered legacy and bad practice. It's as if doctors would have gone from leeches to gene splicing in half a dozen years. Luckily, I enjoy learning. And I appreciate every new idea and pattern that I get to know with every new language I encounter. The borrow checker and the high level features at high performance from Rust. The easiness of bringing your thoughts about data into code from Python. And the convenience of composing functions with F#, which always makes me feel as if I'm the maestro of the code, timing the different parts of the orchestra ideally to create the most beautiful song. 
 
-And all the things, the big and the small, I love in those languages, I miss in others. When I switch from Rust to another, I miss results and matches. When I switch from Python to another language, I search for their equivalent of NumPy and panda. When I switch from f#, I search for a way to pipe and bind my data.
+And all the things, the big and the small, I love in those languages, I miss in others. When I switch from Rust to another, I miss results and matches. When I switch from Python to another language, I search for their equivalent of NumPy and panda. When I switch from F#, I search for a way to pipe and bind my data.
 
-It seems a few people were coming from f# to JavaScript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in JavaScript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
+It seems a few people were coming from F# to JavaScript and missed that too. Thus, a new feature will be added to the language: The [pipeline operator](https://github.com/tc39/proposal-pipeline-operator). When I first read about this idea, it got me excited. Would I be able to create my workflows in JavaScript soon? However, after playing around with it, I'm much less enthusiastic and feel that the way this is supposed to be implemented is a mistake. 
 
 Languages have an inherent design that will shape how they can evolve without contradicting themselves. Those traits are defined by how the language manages data and state, how it works with types, and the path on which it establishes the absence of things—all of those aspects form constraints on how one can implement specific patterns in a language. Or, like here, can't.
 
@@ -43,11 +43,11 @@ Let's dive into this by developing a little application that reads the content o
 
 Our first task is to create a friendly little process display on the console. It should show the percentage and the message "Started..." until it has reached 25%, then "Running..." until it's at 75%, and after that, "Almost done..." until it's at 100. Once it has reached 100% or more, we want to show the message "Done" and no more percentage. Also, we have to make sure it's sorted based on the last few entries, as a future requirement will be to calculate the time remaining.
 
-If you are already familiar with pipes, binding and higher-order functions, please skip the f# chapter and jump directly to [pipes and JavaScript](#pipes-and-JavaScript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
+If you are already familiar with pipes, binding and higher-order functions, please skip the F# chapter and jump directly to [pipes and JavaScript](#pipes-and-JavaScript). If you are aware of the proposal and are only here to check what can go wrong, jump ahead to [the final chapter](#then-why-is-it-wrong).
 
-## Pipes and f#
+## Pipes and F#
 
-The pipe operator in f# is `|>`. It is defined as
+The pipe operator in F# is `|>`. It is defined as
 
 ```fsharp
 value |> function = function value
@@ -59,7 +59,7 @@ Thus, it passes the value from the beginning to its end. Accordingly, if the fun
 arg2 |> function arg1 = function arg1 arg2 
 ```
 
-This is an easy thing to do for f#, as all functions are curried by default. That means that the function:
+This is an easy thing to do for F#, as all functions are curried by default. That means that the function:
 
 ```fsharp
 function arg1 arg2 
@@ -136,7 +136,7 @@ seq [None; Some [|"ELEMENT01"; "3"|]; Some [|"ELEMENT04"; "4"|]; None; ...]
 
 As you can see, both the empty element at the beginning and the incorrect element at index 3 are None. 
 
-I want to add one thing in code here even though it is technically not needed - tokenize currently returns our tokens as an array. I prefer to work with tuples in f#, because it comes with a few benefits (remember the `||>` from above), so we will convert it. We can easily do this with the line `fun line -> Some(line[0], line[1])`, but we can't just pipe it in this case. If we write
+I want to add one thing in code here even though it is technically not needed - tokenize currently returns our tokens as an array. I prefer to work with tuples in F#, because it comes with a few benefits (remember the `||>` from above), so we will convert it. We can easily do this with the line `fun line -> Some(line[0], line[1])`, but we can't just pipe it in this case. If we write
 
 ```fsharp
 let tokenize(line: string) =
@@ -192,7 +192,7 @@ let tokenize(line: string) =
 
 As we added the new `>>=` operator, we no longer have to write `Option.bind`. Coincidentally, the implementation of `>>=` is almost the same as for `|>` - the only change is that it calls `Option.bind` before calling the passed function.
 
-We haven't talked about the JavaScript implementation of the pipe at this point, and we won't for some time. But do note that the pipe in f# is merely a starting point for us on our quest to compose functions. It's not just syntactic sugar to avoid reading inside out; it stands on the shoulder of the giant that implicitly and nicely asks us to think in functions and dive into them as they are popping up. And naturally, by the laws and the ecosystem around us, we are pushed into a direction that will prevent us from making mistakes later. 
+We haven't talked about the JavaScript implementation of the pipe at this point, and we won't for some time. But do note that the pipe in F# is merely a starting point for us on our quest to compose functions. It's not just syntactic sugar to avoid reading inside out; it stands on the shoulder of the giant that implicitly and nicely asks us to think in functions and dive into them as they are popping up. And naturally, by the laws and the ecosystem around us, we are pushed into a direction that will prevent us from making mistakes later. 
 
 You will soon see what I mean, so let's continue our example by filtering the None's out. We can do this using the built-in function `Seq.choose`, which returns the list comprised of the results "x" for each element where the function returns `Some(x)`. `Seq.choose` can also be viewed as the implementation of `bind` for sequences, and it follows the same rules, making it very predictable for us.
 
@@ -212,7 +212,7 @@ seq
   [("ELEMENT01", "3"); ("ELEMENT04", "4"); ("ELEMENT03", "1"); ("foo", "4"); ...]
 ```
 
-Next, we remove all elements we are not interested in and only keep the `ELEMENT`s. Unfortunately, our test data shows that `element06` is lowercase, which implies we don't have a guarantee for the casing, so we have to consider that, too. In f#, this means two more functions: one to capitalize the key of the array and another one to check the key for a match:
+Next, we remove all elements we are not interested in and only keep the `ELEMENT`s. Unfortunately, our test data shows that `element06` is lowercase, which implies we don't have a guarantee for the casing, so we have to consider that, too. In F#, this means two more functions: one to capitalize the key of the array and another one to check the key for a match:
 
 ```fsharp
 let keyContains(by: string) ((key,_): string * string) =
@@ -399,7 +399,7 @@ Running this code (after babel transforms it) will output the following result:
 ]
 ```
 
-Similar to f#, we got off with a good start. So, let's continue by tokenizing it. However, unlike in f#, we don't have Maybe or Option types at our disposal, so we are going to approach the error handling slightly different by filtering the elements that don't have an `=` first, and then splitting them: 
+Similar to F#, we got off with a good start. So, let's continue by tokenizing it. However, unlike in F#, we don't have Maybe or Option types at our disposal, so we are going to approach the error handling slightly different by filtering the elements that don't have an `=` first, and then splitting them: 
 
 ```js
 const tokenize = (v) =>
@@ -414,7 +414,7 @@ test_data
     |> console.log(^)
 ```
 
-This is different from how we approached it in f#, which has the Option type allowing us to map and decide in one go. However, it's not too much of a change either, so we might be inclined to ignore it. Nevertheless, it is crucial to highlight a fundamental difference between the two approaches: In f#, we have a construct that allows us to specify the existence of a value and then bind the values to evaluate if we want to compute them. We consciously decided with the `Seq.choose` statement that we wanted to bind them right away. As an alternative, we could have also written:
+This is different from how we approached it in F#, which has the Option type allowing us to map and decide in one go. However, it's not too much of a change either, so we might be inclined to ignore it. Nevertheless, it is crucial to highlight a fundamental difference between the two approaches: In F#, we have a construct that allows us to specify the existence of a value and then bind the values to evaluate if we want to compute them. We consciously decided with the `Seq.choose` statement that we wanted to bind them right away. As an alternative, we could have also written:
 
 ```fsharp
     // before
@@ -466,7 +466,7 @@ const tokenize = v => v.filter(v => v.indexOf("=") > -1).map(v => v.split("="));
 _ref2 = tokenize(readLines(test_data)), console.log(_ref2);
 ```
 
-It tells us two things. First, the tokenize function is more concise without using pipes; the other is that our pipeline itself did become more readable. Rather than the inside-out function in the function call, the pipeline helps us (like with f#) to follow the trail rather than the inside-out function in the function call.
+It tells us two things. First, the tokenize function is more concise without using pipes; the other is that our pipeline itself did become more readable. Rather than the inside-out function in the function call, the pipeline helps us (like with F#) to follow the trail rather than the inside-out function in the function call.
 
 The tokenize function shows us how we probably would have created this in JavaScript - by chaining the functions on their instance.
 
@@ -549,7 +549,7 @@ Solution achieved.
 
 ## Then... What's the problem?
 
-It is not too different from the f# solution, so why complain? It is very similar, but it behaves very differently in some cases. To show how let's fiddle with the input a bit.
+It is not too different from the F# solution, so why complain? It is very similar, but it behaves very differently in some cases. To show how let's fiddle with the input a bit.
 
 ```fsharp
 let test_data = "
@@ -599,7 +599,7 @@ let bind f optional =
     | _ -> None
 ```
 
-There are additional implementations in f#, for instance, the `choose` function on sequences we have already used. Thus, this behaviour can be assumed as law in every functional realm. Knowing this law and combining it with other elements like lazy evaluations and constructs like `map` or `either` will enable you to write complex computational flows that can be mixed and sequenced freely and predictable.
+There are additional implementations in F#, for instance, the `choose` function on sequences we have already used. Thus, this behaviour can be assumed as law in every functional realm. Knowing this law and combining it with other elements like lazy evaluations and constructs like `map` or `either` will enable you to write complex computational flows that can be mixed and sequenced freely and predictable.
 
 For instance, if we are interested in the fact that we ended up with `None` in our composition, we can change the code like so:
 
@@ -633,7 +633,7 @@ More importantly, though, when wrapped in a bind, our function will only be call
 
 And this is where things start to fall apart in JavaScript.
 
-Remember our previous example in JavaScript, and change the code as we did in f#.
+Remember our previous example in JavaScript, and change the code as we did in F#.
 
 ```js
 let test_data = `
@@ -667,9 +667,9 @@ We receive this output because our computational flow is broken starting from th
 
 Let's look at the main differences:
 
-- In f#, once we encounter our first `None`, the `add` is no longer called, as `bind` prevents that. This is the great advantage of optional types that we have seen in the second chapter. In JavaScript, after the current value is `NaN`, addition continues for the other numbers, propagating the `NaN`. 
-- In f#, the format function is only called for valid results from the sum, as we added the binding. In JavaScript, the format function is called indiscriminately.
-- For the final print f#, we can either use the binding again or branch it - based on the outcome. Unfortunately, the JavaScript code is entirely unable to decide the result at that point.
+- In F#, once we encounter our first `None`, the `add` is no longer called, as `bind` prevents that. This is the great advantage of optional types that we have seen in the second chapter. In JavaScript, after the current value is `NaN`, addition continues for the other numbers, propagating the `NaN`. 
+- In F#, the format function is only called for valid results from the sum, as we added the binding. In JavaScript, the format function is called indiscriminately.
+- For the final print F#, we can either use the binding again or branch it - based on the outcome. Unfortunately, the JavaScript code is entirely unable to decide the result at that point.
 
 To achieve effective pipelines in JavaScript, we will first have to introduce optional types and binding. Without it, we cannot create the laws required to prove that our flow will succeed or fail. And thus, like in our example, it will fail in a way that will be very hard to trace, debug and understand in a more complex application - leading to the exact opposite of what functional paradigms usually provide.
 
